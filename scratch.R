@@ -1,4 +1,5 @@
 library(tidyverse)
+source("R/moving-average.R")
 
 q1_data <- read_csv("Q1.csv")
 q2_data <- read_csv("Q2.csv")
@@ -16,6 +17,8 @@ clean_q1 <- q1_data |>
   select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
   filter(Date >= "1988-01-01" & Date <= "1994-12-31")
 
+
+moving_average(clean_q1)
 
 K <- NA
 Mg <- NA
@@ -143,3 +146,5 @@ clean_mpr <- mpr_data |>
   )
 
 # Joining ----------------------------------------------------------------
+
+moving_average(clean_q1)
