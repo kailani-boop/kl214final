@@ -18,14 +18,11 @@ clean_q1 <- q1_data |>
   filter(Date >= "1988-01-01" & Date <= "1994-12-31")
 
 
-moving_average(clean_q1)
-
 K <- NA
 Mg <- NA
 Ca <- NA
 `NH4-N` <- NA
 `NO3-N` <- NA
-
 
 q1_smoothed <- tibble(
   window_start,
@@ -37,42 +34,8 @@ q1_smoothed <- tibble(
 )
 
 
-for (i in 1:nrow(q1_smoothed)) {
-  start_date <- q1_smoothed$window_start[i]
-  end_date <- q1_smoothed$window_start[i] + weeks(9)
-
-  k_ranges <- clean_q1$K[
-    clean_q1$Date >= start_date &
-      clean_q1$Date < end_date
-  ]
-
-  mg_ranges <- clean_q1$Mg[
-    clean_q1$Date >= start_date &
-      clean_q1$Date < end_date
-  ]
-
-  ca_ranges <- clean_q1$Ca[
-    clean_q1$Date >= start_date &
-      clean_q1$Date < end_date
-  ]
-
-  nh4n_ranges <- clean_q1$`NH4-N`[
-    clean_q1$Date >= start_date &
-      clean_q1$Date < end_date
-  ]
-
-  no3n_ranges <- clean_q1$`NO3-N`[
-    clean_q1$Date >= start_date &
-      clean_q1$Date < end_date
-  ]
-
-  q1_smoothed$K[i] <- mean(k_ranges, na.rm = TRUE)
-  q1_smoothed$Mg[i] <- mean(mg_ranges, na.rm = TRUE)
-  q1_smoothed$Ca[i] <- mean(ca_ranges, na.rm = TRUE)
-  q1_smoothed$`NH4-N`[i] <- mean(nh4n_ranges, na.rm = TRUE)
-  q1_smoothed$`NO3-N`[i] <- mean(no3n_ranges, na.rm = TRUE)
-}
-q1_smoothed
+source("R/moving-average.R")
+moving_average(clean_q1)
 
 
 q1_smoothed |>
