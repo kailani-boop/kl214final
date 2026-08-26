@@ -142,9 +142,4 @@ clean_mpr <- mpr_data |>
     values_to = "Units"
   )
 
-
 # Joining ----------------------------------------------------------------
-
-full_join()
-
-print("hello")
