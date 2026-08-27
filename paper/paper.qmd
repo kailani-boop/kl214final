@@ -1,0 +1,123 @@
+---
+title: "Recreating the Effects of Hurricane Hugo on Stream Water Quality"
+format: html
+---
+
+## Background
+In 1989, Hurricane Hugo struck Puerto Rico. Scientists have known that stream water chemistry responds substantially to watershed disturbances. However, there's been no research on the effects of hurricanes on stream water quality. In the Schaefer et al. article, scientists look at the effects of Hurricane Hugo in several watersheds of Puerto Rico, Bisley Quebrada 1, 2, and 3, and Puente Roto Mameyes. Nitrate, potassium, and ammonium concentrations increased after the hurricane and remained elevated for a few years. Other ions concentrations' were elevated as well, but on a smaller scale. Hurricanes can have a greater effect on watersheds than other disturbances. 
+
+## Data 
+To investigate the datasets and to recreate Figure 3 from the article, I read in the data and cleaned the datasets so only the relevant data is leftover. 
+```{r, echo = FALSE, include = FALSE}
+library(tidyverse)
+
+q1_data <- read_csv("../data/Q1.csv")
+q2_data <- read_csv("../data/Q2.csv")
+q3_data <- read_csv("../data/Q3.csv")
+mpr_data <- read_csv("../data/MPR.csv")
+
+# q1 cleaned
+clean_q1 <- q1_data |>
+  mutate(Date = Sample_Date) |>
+  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
+  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
+
+# q2 cleaned
+clean_q2 <- q2_data |>
+  mutate(Date = Sample_Date) |>
+  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
+  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
+
+# q3 cleaned
+clean_q3 <- q3_data |>
+  mutate(Date = Sample_Date) |>
+  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
+  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
+
+# mpr cleaned
+clean_mpr <- mpr_data |>
+  mutate(Date = Sample_Date) |>
+  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
+  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
+```
+
+
+## Methods
+After adding the relevant datasets and cleaning them, we made a function to calculate the nine-week moving averages for all of the watersheds and their ion concentrations. 
+```{r, echo = FALSE}
+moving_average <- function(site_id, ma) {
+  result <- tibble(
+    window_start = seq(ymd("1988-01-01"), ymd("1994-12-31"), by = "9 weeks"),
+    site = site_id,
+    k_mgl = NA,
+    mg_mgl = NA,
+    ca_mgl = NA,
+    nh4n_mgl = NA,
+    no3n_mgl = NA
+  )
+
+  for (i in 1:nrow(result)) {
+    w1 <- result$window_start[i]
+    w2 <- result$window_start[i] + weeks(9)
+
+    in_window <- w1 <= ma$Date & w2 > ma$Date
+
+    k_window <- ma$K[in_window]
+    mg_window <- ma$Mg[in_window]
+    ca_window <- ma$Ca[in_window]
+    nh4n_window <- ma$`NH4-N`[in_window]
+    no3n_window <- ma$`NO3-N`[in_window]
+
+    result$k_mgl[i] <- mean(k_window, na.rm = TRUE)
+    result$mg_mgl[i] <- mean(mg_window, na.rm = TRUE)
+    result$ca_mgl[i] <- mean(ca_window, na.rm = TRUE)
+    result$nh4n_mgl[i] <- mean(nh4n_window, na.rm = TRUE)
+    result$no3n_mgl[i] <- mean(no3n_window, na.rm = TRUE)
+  }
+
+  return(result)
+}
+
+q1_ma <- moving_average("BQ1", clean_q1)
+q2_ma <- moving_average("BQ2", clean_q2)
+q3_ma <- moving_average("BQ3", clean_q3)
+mpr_ma <- moving_average("PRM", clean_mpr)
+```
+
+
+## Results
+After calculating the moving averages, and joining the datasets together, I was able to recreate Figure 3 from the article, as shown in the plot below. On the x-axis is time in years with a vertical line representing when Hurricane Hugo hit. On the y-axis, is each individual ion. Within each ion's moving average, there are multiple lines with respective colors to each watershed. 
+
+```{r, echo = FALSE, warnings = FALSE}
+final_df <- bind_rows(q1_ma, q2_ma, q3_ma, mpr_ma)
+
+pivoted_final <- pivot_longer(
+  final_df,
+  cols = k_mgl:no3n_mgl,
+  names_to = "Ions",
+  values_to = "Concentration"
+)
+
+ggplot(
+  pivoted_final,
+  mapping = aes(
+    x = window_start,
+    y = Concentration,
+    color = site
+  )
+) +
+  geom_line() +
+  theme_bw() +
+  labs(
+    title = "Concentrations of Various Ions Around Hurricane Hugo",
+    x = "Years",
+    y = "Concentration",
+  ) +
+  facet_wrap(
+    ~Ions,
+    scales = "free",
+    ncol = 1,
+    strip.position = "left"
+  ) +
+  geom_vline(xintercept = ymd("1989-09-18"), linetype = "dashed")
+```
