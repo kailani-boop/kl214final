@@ -10,96 +10,20 @@ In 1989, Hurricane Hugo struck Puerto Rico. Scientists have known that stream wa
 To investigate the datasets and to recreate Figure 3 from the article, I read in the data and cleaned the datasets so only the relevant data is leftover. 
 ```{r, echo = FALSE, include = FALSE}
 library(tidyverse)
-
-q1_data <- read_csv("../data/Q1.csv")
-q2_data <- read_csv("../data/Q2.csv")
-q3_data <- read_csv("../data/Q3.csv")
-mpr_data <- read_csv("../data/MPR.csv")
-
-# q1 cleaned
-clean_q1 <- q1_data |>
-  mutate(Date = Sample_Date) |>
-  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
-  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
-
-# q2 cleaned
-clean_q2 <- q2_data |>
-  mutate(Date = Sample_Date) |>
-  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
-  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
-
-# q3 cleaned
-clean_q3 <- q3_data |>
-  mutate(Date = Sample_Date) |>
-  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
-  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
-
-# mpr cleaned
-clean_mpr <- mpr_data |>
-  mutate(Date = Sample_Date) |>
-  select(Date, `NH4-N`, Ca, Mg, `NO3-N`, K) |>
-  filter(Date >= "1988-01-01" & Date <= "1994-12-31")
+df <- read_csv("../output/cleaned_data.csv")
 ```
 
 
 ## Methods
 After adding the relevant datasets and cleaning them, we made a function to calculate the nine-week moving averages for all of the watersheds and their ion concentrations. 
-```{r, echo = FALSE}
-moving_average <- function(site_id, ma) {
-  result <- tibble(
-    window_start = seq(ymd("1988-01-01"), ymd("1994-12-31"), by = "9 weeks"),
-    site = site_id,
-    k_mgl = NA,
-    mg_mgl = NA,
-    ca_mgl = NA,
-    nh4n_mgl = NA,
-    no3n_mgl = NA
-  )
-
-  for (i in 1:nrow(result)) {
-    w1 <- result$window_start[i]
-    w2 <- result$window_start[i] + weeks(9)
-
-    in_window <- w1 <= ma$Date & w2 > ma$Date
-
-    k_window <- ma$K[in_window]
-    mg_window <- ma$Mg[in_window]
-    ca_window <- ma$Ca[in_window]
-    nh4n_window <- ma$`NH4-N`[in_window]
-    no3n_window <- ma$`NO3-N`[in_window]
-
-    result$k_mgl[i] <- mean(k_window, na.rm = TRUE)
-    result$mg_mgl[i] <- mean(mg_window, na.rm = TRUE)
-    result$ca_mgl[i] <- mean(ca_window, na.rm = TRUE)
-    result$nh4n_mgl[i] <- mean(nh4n_window, na.rm = TRUE)
-    result$no3n_mgl[i] <- mean(no3n_window, na.rm = TRUE)
-  }
-
-  return(result)
-}
-
-q1_ma <- moving_average("BQ1", clean_q1)
-q2_ma <- moving_average("BQ2", clean_q2)
-q3_ma <- moving_average("BQ3", clean_q3)
-mpr_ma <- moving_average("PRM", clean_mpr)
-```
 
 
 ## Results
 After calculating the moving averages, and joining the datasets together, I was able to recreate Figure 3 from the article, as shown in the plot below. On the x-axis is time in years with a vertical line representing when Hurricane Hugo hit. On the y-axis, is each individual ion. Within each ion's moving average, there are multiple lines with respective colors to each watershed. 
 
-```{r, echo = FALSE, warnings = FALSE}
-final_df <- bind_rows(q1_ma, q2_ma, q3_ma, mpr_ma)
-
-pivoted_final <- pivot_longer(
-  final_df,
-  cols = k_mgl:no3n_mgl,
-  names_to = "Ions",
-  values_to = "Concentration"
-)
-
+```{r, echo = FALSE, warning = FALSE}
 ggplot(
-  pivoted_final,
+  df,
   mapping = aes(
     x = window_start,
     y = Concentration,
@@ -109,15 +33,29 @@ ggplot(
   geom_line() +
   theme_bw() +
   labs(
-    title = "Concentrations of Various Ions Around Hurricane Hugo",
+    title = "Concentrations of Various Ions Based on Watershed from 1988 to 1994",
     x = "Years",
     y = "Concentration",
+    caption = "Concentrations in Bisley, Puerto Rico streams before and after Hurricane Hugo, 9-wk 
+    moving averages. (a) calcium, (b) potassium, (c) magnesium, (d) ammonium-N and (e) nitrate-N. 
+    The vertical lines mark the time of hurricane disturbance."
   ) +
   facet_wrap(
     ~Ions,
     scales = "free",
     ncol = 1,
-    strip.position = "left"
+    strip.position = "left",
+    labeller = as_labeller(c(
+      ca_mgl = "Ca mg l^-1",
+      k_mgl = "K mg l^-1",
+      mg_mgl = "Mg mg l^-1",
+      nh4n_mgl = "NH_4-N ug l^-1",
+      no3n_mgl = "NO_3-N ug l^-1"
+    ))
   ) +
-  geom_vline(xintercept = ymd("1989-09-18"), linetype = "dashed")
+  geom_vline(xintercept = ymd("1989-09-18"), linetype = "dashed") +
+  theme(
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position = "plot"
+  )
 ```

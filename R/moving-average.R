@@ -1,8 +1,9 @@
 # The input to this function should be a data frame containing stream chemistry data
-moving_average <- function(ma) {
+moving_average <- function(site_id, ma) {
   # Initialize a tibble to contain the results
   result <- tibble(
     window_start = seq(ymd("1988-01-01"), ymd("1994-12-31"), by = "9 weeks"),
+    site = site_id,
     k_mgl = NA,
     mg_mgl = NA,
     ca_mgl = NA,
