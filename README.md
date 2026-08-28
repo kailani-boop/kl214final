@@ -2,7 +2,7 @@
 
 ## Purpose of the Repository
 This repository is meant to house all relevant data files and code that's used to recreate a graph from a given article. The repository is essential for storing the most recent versions of all the files and scripts, while staying organized. Below is the figure I attempted to recreate. 
-![Figure 3](figure3_og.png)
+![Figure 3](figs/figure3_og.png)
 
 ## What's Inside the Repository
 Within the repository, there's a "data" file that includes all the raw data from the article. Additionally, the repo stores R scripts that filter, select, and mutate the raw data to produce moving averages and graphs. The code that cleans the data is stored in the "1_clean_data" R file. The code that creates a moving average function is stored in the "R" file, which contains a script called "moving-average". Lastly, the graph can either be found in "docs/paper_files/figure-html", or the paper quarto document, which is a brief scientific paper outlining the background, data, methods, and results of my code and the findings. 
