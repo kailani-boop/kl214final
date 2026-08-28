@@ -8,7 +8,9 @@ In 1989, Hurricane Hugo struck Puerto Rico. Scientists have known that stream wa
 
 ## Data 
 To investigate the datasets and to recreate Figure 3 from the article, I read in the data and cleaned the datasets so only the relevant data is leftover. The data included stream water chemistry from Quebrada one-Bisley (Q1), Quebrada two-Bisley (Q2), Quebrada three-Bisley (Q3), and Puente Roto Mameyes (MPR). Then, I cleaned that data, formatted it the correct way, and created a new file with a dataframe in it to reference later. 
-```{r, echo = FALSE, include = FALSE}
+```{r}
+#| echo: false
+#| include: false
 library(tidyverse)
 bisley_data <- read_csv("../output/cleaned_data.csv")
 ```
@@ -21,7 +23,10 @@ First, I added the relevant datasets and created new clean dataframes for each d
 ## Results
 After calculating the moving averages, and joining the datasets together, I was able to recreate Figure 3 from the article, as shown in the plot below. On the x-axis is time in years with a vertical line representing when Hurricane Hugo hit. On the y-axis, is each individual ion's concentration with each separate graph representing it's respective ion. Within each ion's moving average, there are multiple lines with respective colors to each watershed. After Hurricane Hugo hit, ion concentrations spiked and remained elevated for years afterwards. This showcases that hurricanes are a large disturbance for stream water chemistry. 
 
-```{r, echo = FALSE, warning = FALSE}
+```{r}
+#| echo: false
+#| warning: false
+#| fig-height: 6
 ggplot(
   data = bisley_data,
   mapping = aes(
@@ -57,5 +62,6 @@ ggplot(
   theme(
     plot.caption = element_text(hjust = 0),
     plot.caption.position = "plot"
-  )
+  ) +
+  scale_color_discrete("Watershed")
 ```
