@@ -1,6 +1,14 @@
 ---
 title: "Recreating the Effects of Hurricane Hugo on Stream Water Quality"
+author: 
+    name: Kailani Latimer
+    email: kailani@ucsb.edu
+date: "August 28, 2026"
+toc: true
 format: html
+execute: 
+    message: false
+    warning: false
 ---
 
 ## Background
