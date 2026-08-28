@@ -10,7 +10,7 @@ In 1989, Hurricane Hugo struck Puerto Rico. Scientists have known that stream wa
 To investigate the datasets and to recreate Figure 3 from the article, I read in the data and cleaned the datasets so only the relevant data is leftover. 
 ```{r, echo = FALSE, include = FALSE}
 library(tidyverse)
-df <- read_csv("../output/cleaned_data.csv")
+bisley_data <- read_csv("../output/cleaned_data.csv")
 ```
 
 
@@ -23,7 +23,7 @@ After calculating the moving averages, and joining the datasets together, I was 
 
 ```{r, echo = FALSE, warning = FALSE}
 ggplot(
-  df,
+  data = bisley_data,
   mapping = aes(
     x = window_start,
     y = Concentration,
