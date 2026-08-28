@@ -9,7 +9,6 @@ moving_average <- function(site_id, ma) {
     ca_mgl = NA,
     nh4n_mgl = NA,
     no3n_mgl = NA
-    # Fill in the rest of the ions
   )
 
   # Fill in the iterator and sequence
@@ -19,13 +18,10 @@ moving_average <- function(site_id, ma) {
     w2 <- result$window_start[i] + weeks(9)
 
     # Create a logical vector, called "in_window", that says which samples are inside the window
-    # Hint: you'll compare sample dates to the start and end of the window
     in_window <- w1 <= ma$Date & w2 > ma$Date
 
     # Use indexing to pull out the ion concentrations that fall inside the window
     k_window <- ma$K[in_window]
-    # The line above gets potassium in the window. Get the rest of the ions too
-
     mg_window <- ma$Mg[in_window]
     ca_window <- ma$Ca[in_window]
     nh4n_window <- ma$`NH4-N`[in_window]
